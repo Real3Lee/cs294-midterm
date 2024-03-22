@@ -31,7 +31,6 @@ def main():
         [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     )
 
-    # CIFAR-10 dataset
     trainset = torchvision.datasets.CIFAR10(
         root="./data", train=True, download=True, transform=transform
     )
@@ -63,6 +62,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
+    # Training loop
     for epoch in range(10):
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
@@ -82,29 +82,25 @@ def main():
 
     print("Finished Training")
 
-    correct = 0
-    total = 0
+    # Accuracy per class
+    class_correct = list(0.0 for i in range(10))
+    class_total = list(0.0 for i in range(10))
     with torch.no_grad():
         for data in testloader:
             images, labels = data
             outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+            _, predicted = torch.max(outputs, 1)
+            c = (predicted == labels).squeeze()
+            for i in range(4):
+                label = labels[i]
+                class_correct[label] += c[i].item()
+                class_total[label] += 1
 
-    print(
-        "Accuracy of the network on the 10000 test images: %d %%"
-        % (100 * correct / total)
-    )
-
-    with torch.no_grad():
-        for data in testloader:
-            images, labels = data
-            outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-            print(
-                "Predicted: ", " ".join("%5s" % classes[predicted[j]] for j in range(4))
-            )
+    for i in range(10):
+        print(
+            "Accuracy of %5s : %2d %%"
+            % (classes[i], 100 * class_correct[i] / class_total[i])
+        )
 
 
 if __name__ == "__main__":

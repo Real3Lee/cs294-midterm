@@ -12,10 +12,8 @@ def memorization_points(data, n_classes):
     knn = KNeighborsClassifier(n_neighbors=1)
     memorization_counts = []
     for i in range(len(data)):
-        # Leave one out cross validation
         train_data = np.delete(data, i, axis=0)
         test_point = data[i].reshape(1, -1)
-        # Generate labels for multi-class classification
         labels = np.tile(np.arange(n_classes), len(data) // n_classes + 1)[: len(data)]
         train_labels = np.delete(labels, i)
         test_label = labels[i]
@@ -30,7 +28,7 @@ def memorization_points(data, n_classes):
 def main():
     max_dimensions = 10
     n_points = 1000
-    n_classes = 3  # Change this to experiment with different numbers of classes
+    n_classes = 3
     for D in range(1, max_dimensions + 1):
         data = generate_data(n_points, D, n_classes)
         avg_mem_size = memorization_points(data, n_classes)
